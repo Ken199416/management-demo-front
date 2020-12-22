@@ -10,7 +10,7 @@ import axios from 'axios'
 import Common from './CommonFunction/common.js'
 import Global from './CommonFunction/global.js'
 // 导入echarts
-import echarts from 'echarts'
+// import echarts from 'echarts'
 // // import echarts from './plugins/echarts'
 // import draggable from 'vuedraggable' //拖拽插件
 // import JsonViewer from 'vue-json-viewer'  //JSON插件
@@ -40,7 +40,7 @@ Vue.prototype.$http = axios
 Vue.prototype.$common = Common
 Vue.prototype.$global = Global
 Vue.config.productionTip = false
-Vue.prototype.echarts = echarts
+// Vue.prototype.echarts = echarts
 
 const vm = new Vue({
   router,

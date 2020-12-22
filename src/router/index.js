@@ -8,6 +8,10 @@ import ProjectGroup from './../components/project/group.vue'
 import ConfigUser from './../components/config/user.vue'
 import ConfigPermission from './../components/config/permission.vue'
 import ConfigUserInfo from './../components/config/user/userInfo.vue'
+import FileOnline from './../components/file/online.vue'
+import FileOnlineFile from './../components/file/onlineFile.vue'
+import NoSelect from './../components/file/noSelect.vue'
+
 
 Vue.use(VueRouter)
 
@@ -57,7 +61,21 @@ const routes = [
       },
       { path: '/config/user/userInfo/:uid', component: ConfigUserInfo, props: true ,meta: {
         keepAlive: true
-      }}
+      }},
+      {
+        path: '/folder/online', component: FileOnline,meta: {
+          keepAlive: true
+        },
+        redirect:'/folder/online/noSelect',
+        children:[
+          {
+            path: 'file/:id', component: FileOnlineFile,props: true
+          },
+          {
+            path: 'noSelect', component: NoSelect
+          }
+        ]
+      },
 
     ]
   }
@@ -75,5 +93,11 @@ router.beforeEach((to, from, next) => {
   if (!token) return next('/login')
   next()
 })
+
+// 解决路由连续跳转的error
+const routerPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error=> error)
+}
 
 export default router

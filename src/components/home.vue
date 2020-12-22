@@ -11,9 +11,8 @@
           height="40px "
         />
         <strong style="margin-left: 10px">Black Pineapple</strong>
-        <!-- &nbsp;&nbsp;测试平台 -->
       </div>
-      <span style="margin-left: 80%">
+      <span style="margin-left: 75%">
         <el-menu
           :default-active="activeIndex"
           class="el-menu-demo"
@@ -47,9 +46,12 @@
       <!-- 左侧侧边栏 -->
       <el-aside :width="aside + 'px'">
         <!-- 侧边栏 -->
-        <div class="toggle-button" @click="toggleChange()">
-          <i :class="toggleIcon"></i>
-        </div>
+        <el-tooltip class="item" effect="dark" :content="toggleContent" placement="right">
+          <div class="toggle-button" @click="toggleChange()">
+            <i :class="toggleIcon"></i>
+          </div>
+        </el-tooltip>
+
         <el-menu
           background-color="#333744"
           text-color="#fff"
@@ -170,9 +172,9 @@
         </el-tabs> -->
         <!-- <router-view></router-view> -->
         <keep-alive>
-              <router-view v-if="$route.meta.keepAlive"></router-view>
-            </keep-alive>
-            <router-view v-if="!$route.meta.keepAlive"></router-view>
+          <router-view v-if="$route.meta.keepAlive"></router-view>
+        </keep-alive>
+        <router-view v-if="!$route.meta.keepAlive"></router-view>
 
         <!-- 通用底部 -->
         <div style="margin-top: 50px; margin-left: 45%">
@@ -201,7 +203,7 @@ export default {
       //   左侧菜单数据
       menuList: [],
       isCollapse: false,
-      aside: 200,
+      aside: 175,
       toggleIcon: "el-icon-s-fold",
       currentMenu: "/project/single",
       customerName: "",
@@ -217,6 +219,8 @@ export default {
       tabIndex: 0,
       rootName: "首页",
       currentTab: [],
+      // 左侧菜单栏的提示
+      toggleContent:'收起'
     };
   },
   methods: {
@@ -232,7 +236,6 @@ export default {
       this.$router.push(this.currentTab.path);
     },
     addTab(targetName, contentName) {
-      console.log("进入addTab");
       if (
         this.editableTabs.findIndex((tab) => tab.title === contentName) == -1
       ) {
@@ -295,19 +298,20 @@ export default {
     // 切换菜单折叠和展开
     toggleChange() {
       this.isCollapse = !this.isCollapse;
-      if (this.aside == 200) {
+      if (this.aside == 175) {
         this.aside = 64;
         this.toggleIcon = "el-icon-s-unfold";
+        this.toggleContent = "展开";
       } else {
-        this.aside = 200;
-
+        this.aside = 175;
         this.toggleIcon = "el-icon-s-fold";
+        this.toggleContent = "收起";
       }
     },
     clickMenu(path, parentName, name) {
-      console.log("进入clickMenu");
+      // console.log("进入clickMenu");
       window.sessionStorage.setItem("currentMenu", path);
-      this.addTab(parentName, name);
+      // this.addTab(parentName, name);
       this.$router.push(path);
     },
     getLastMenu() {
