@@ -94,7 +94,7 @@ export default {
             this.$message.success(response.message);
             // console.log("token ： " + data.data.id);
             window.localStorage.setItem("token", response.data);
-            // window.localStorage.setItem('customerName', data.data.customerName)
+            window.localStorage.setItem('customerName', response.customerName)
             this.$router.push("/home");
           } else {
             this.$message.error(response.message);
