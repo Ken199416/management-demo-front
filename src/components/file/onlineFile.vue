@@ -1,14 +1,15 @@
 <template>
   <div>
-    <div style="margin-bottom:10px;">
-      <el-button size="mini" >编辑</el-button>
-      <el-button size="mini">保存</el-button>
+    <div style="margin-bottom:10px;text-align:right" >
+      <el-button v-if="!isEdit" size="mini" @click="isEdit=!isEdit">编辑</el-button>
+      <el-button v-if="isEdit" size="mini" @click="save()">保存</el-button>
+       <!-- <el-button @click="lookContent" size="mini">查询</el-button> -->
     </div>
-    <div>
+    <div v-if="isEdit">
            <quill-editor v-if="Node.isNode == 1" ref="myTextEditor" v-model="Node.fileContent" :options="editorOption" style="height:600px;" ></quill-editor>
       </div>
-
-    
+  <el-card class="ql-editor" v-if="!isEdit" shadow="always" v-html="Node.fileContent">
+  </el-card>
   </div>
 </template>
 <script>
@@ -24,28 +25,36 @@ export default {
     data() {
         return {
           Node:{},
+          isEdit:false,
           content:"",
+          fileForm:{
+            id:"",
+            fileContent:""
+          },
           editorOption: {
-               placeholder: '编辑文章内容'
-             },
-          // toolbar:[
-          //                 ['bold', 'italic', 'underline', 'strike'],    //加粗，斜体，下划线，删除线
-          //                 ['blockquote', 'code-block'],     //引用，代码块
-          //                 [{ 'header': 1 }, { 'header': 2 }],        // 标题，键值对的形式；1、2表示字体大小
-          //                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],     //列表
-          //                 [{ 'script': 'sub'}, { 'script': 'super' }],   // 上下标
-          //                 [{ 'indent': '-1'}, { 'indent': '+1' }],     // 缩进
-          //                 [{ 'direction': 'rtl' }],             // 文本方向
-          //                 [{ 'size': ['small', false, 'large', 'huge'] }], // 字体大小
-          //                 [{ 'header': [1, 2, 3, 4, 5, 6, false] }],     //几级标题
-          //                 [{ 'color': [] }, { 'background': [] }],     // 字体颜色，字体背景颜色
-          //                 [{ 'font': [] }],     //字体
-          //                 [{ 'align': [] }],    //对齐方式
-          //                 ['clean'],    //清除字体样式
-          //                 ['image','video']    //上传图片、上传视频
-          //         ]
-        }
-    },
+               placeholder: '编辑文章内容',
+               modules:{
+                toolbar:[
+                          ['bold', 'italic', 'underline', 'strike'],    //加粗，斜体，下划线，删除线
+                          ['blockquote', 'code-block'],     //引用，代码块
+                          //[{ 'header': 1 }, { 'header': 2 }],        // 标题，键值对的形式；1、2表示字体大小
+                          [{ 'list': 'ordered'}, { 'list': 'bullet' }],     //列表
+                          [{ 'script': 'sub'}, { 'script': 'super' }],   // 上下标
+                          [{ 'indent': '-1'}, { 'indent': '+1' }],     // 缩进
+                          [{ 'direction': 'rtl' }],             // 文本方向
+                          [{ 'size': ['small', false, 'large', 'huge'] }], // 字体大小
+                          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],     //几级标题
+                          [{ 'color': [] }, { 'background': [] }],     // 字体颜色，字体背景颜色
+                          [{ 'font': [] }],     //字体
+                          [{ 'align': [] }],    //对齐方式
+                          ['clean'],    //清除字体样式
+                          ['image','video']    //上传图片、上传视频
+                  ]
+               }
+               
+             }
+          
+    }},
     methods:{
         onEditorReady(editor) { // 准备编辑器
  
@@ -66,6 +75,16 @@ export default {
             str = str.replace(/&gt;/g,'>');
             return str;
         },
+        async save(){
+          this.fileForm = {
+            id: this.Node.id,
+            fileContent: this.Node.fileContent
+          }
+          const { data : response } = await this.$http.post("/fileContent/updateFile",this.fileForm);
+
+
+          this.isEdit=!this.isEdit;
+        },
         async getNodeById(id){
           // console.log("获取node节点")
             const { data: response } = await this.$http.get("/fileContent/getNodeById?id=" + id);
@@ -74,6 +93,8 @@ export default {
             if(this.Node.isNode == 1){
               
             }
+        },lookContent(){
+          console.log(this.Node.fileContent);
         }
 
 
