@@ -28,8 +28,10 @@
           :icon-class="treeDirClassIcon"
           @node-click="handleNodeClick"
           @node-contextmenu="rightClick"
+          :default-expanded-keys="expandedNode"
+          :default-checked-keys="checkedNode"
         >
-          <span class="custom-tree-node" slot-scope="{ node,data }">
+          <span class="custom-tree-node" slot-scope="{ node, data }">
             <i v-if="data.isNode == 1" class="el-icon-document"></i>
             <span>{{ node.label }}&nbsp;&nbsp;&nbsp;&nbsp;</span>
             <!-- <el-button
@@ -44,8 +46,8 @@
         </el-tree>
         <div v-show="menuVisible">
           <ul id="menu" class="menu">
-            <li class="menu_item" @click="addDir" >添加文件夹</li>
-            <li class="menu_item" @click="addFile">添加文件</li>
+            <li class="menu_item" @click="openAddDialog(0)">添加文件夹</li>
+            <li class="menu_item" @click="openAddDialog(1)">添加文件</li>
             <!-- <li class="menu_item" @click="3">删除</li> -->
           </ul>
         </div>
@@ -53,15 +55,26 @@
       <el-container>
         <!-- 文件头 -->
         <el-header>
-          <strong v-if="!isAllowEditFileName" @dblclick="editFileName">{{ fileForm.fileName }}</strong>
+          <strong v-if="!isAllowEditFileName" @dblclick="editFileName">{{
+            fileForm.fileName
+          }}</strong>
           <div v-if="isAllowEditFileName">
-            <el-input style="width:85%"  v-model="fileForm.fileName"></el-input>
-            <el-link style="margin-left:15px" icon="el-icon-check" type="primary" @click="updateFile"></el-link>
-            <el-link style="margin-left:20px" icon="el-icon-close" type="danger" @click="isAllowEditFileName = false"></el-link>
-          <!-- <el-button type="text" style="margin-left:15px" icon="el-icon-check" :loading="fileNameSaveButtonLoad"></el-button>
+            <el-input style="width: 85%" v-model="fileForm.fileName"></el-input>
+            <el-link
+              style="margin-left: 15px"
+              icon="el-icon-check"
+              type="primary"
+              @click="updateFile"
+            ></el-link>
+            <el-link
+              style="margin-left: 20px"
+              icon="el-icon-close"
+              type="danger"
+              @click="isAllowEditFileName = false"
+            ></el-link>
+            <!-- <el-button type="text" style="margin-left:15px" icon="el-icon-check" :loading="fileNameSaveButtonLoad"></el-button>
           <el-button type="text" style="margin-left:20px" icon="el-icon-close"></el-button> -->
           </div>
-
         </el-header>
         <el-main>
           <keep-alive>
@@ -72,15 +85,19 @@
       </el-container>
     </el-container>
     <el-dialog
-      title="添加文件或者文件夹"
-      :visible.sync="dialogVisible"
+      :title="fileContentForm.isNode == 0 ? '添加文件夹' : '添加文件'"
+      :visible.sync="fileDialogVisible"
       width="30%"
       :before-close="handleClose"
     >
-      <span>这是一段信息</span>
+    <div class="demo-input-suffix">
+       <!-- {{ fileContentForm.isNode == 0 ? '文件夹名' : '文件名' }} : -->
+      <el-input :placeholder="fileContentForm.isNode == 0 ? '文件夹名' : '文件名'" v-model="fileContentForm.fileName"></el-input>
+    </div>
+   
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="add"
           >确 定</el-button
         >
       </span>
@@ -91,8 +108,13 @@
 export default {
   data() {
     return {
-      fileNameSaveButtonLoad:false,
-      isAllowEditFileName:false,
+      checkedNode:[],
+      expandedNode:[],
+      fileDialogVisible:false,
+      fileContentForm:{},
+      oldFileName: "",
+      fileNameSaveButtonLoad: false,
+      isAllowEditFileName: false,
       treeDirClassIcon: "el-icon-folder",
       treeFileClassIcon: "el-icon-document",
       addButtonContent: "&nbsp;+&nbsp;",
@@ -101,76 +123,15 @@ export default {
       aside: 300,
       toggleIcon: "el-icon-d-arrow-left",
       isCollapse: false,
-      dialogVisible: false,
       menuVisible: false,
-      rightMenuNodeId:"",
-      fileForm:{
-        id:"",
-        fileName:"",
-        fileContent:""
+      rightMenuNodeId: "",
+      fileForm: {
+        id: "",
+        fileName: "",
+        fileContent: "",
       },
-      fileNodeId:"",
-      treeData: [
-        // {
-        //     id:1,
-        //   label: "一级 1",
-        //   children: [
-        //     {id:2,
-        //       label: "二级 1-1",
-        //       children: [
-        //         {
-        //             id:3,
-        //           label: "三级 1-1-1",
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // {
-        //     id:4,
-        //   label: "一级 2",
-        //   children: [
-        //     {id:5,
-        //       label: "二级 2-1",
-        //       children: [
-        //         {id:6,
-        //           label: "三级 2-1-1",
-        //         },
-        //       ],
-        //     },
-        //     {
-        //         id:7,
-        //       label: "二级 2-2",
-        //       children: [
-        //         {id:8,
-        //           label: "三级 2-2-1",
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-        // {id:9,
-        //   label: "一级 3",
-        //   children: [
-        //     {id:10,
-        //       label: "二级 3-1",
-        //       children: [
-        //         {id:11,
-        //           label: "三级 3-1-1",
-        //         },
-        //       ],
-        //     },
-        //     {id:12,
-        //       label: "二级 3-2",
-        //       children: [
-        //         {id:13,
-        //           label: "三级 3-2-1",
-        //         },
-        //       ],
-        //     },
-        //   ],
-        // },
-      ],
+      fileNodeId: "",
+      treeData: [],
       defaultProps: {
         children: "children",
         label: "fileName",
@@ -183,35 +144,43 @@ export default {
       const { data: response } = await this.$http.get("/fileContent/getTree");
       this.treeData = response.data;
     },
-    getTreeClassicon(event){
+    getTreeClassicon(event) {
       console.log(event);
     },
-    editFileName(){
-      console.log(this.fileForm.fileName)
-      if(this.fileForm.fileName == "请选择一个文件"){
+    editFileName() {
+      console.log(this.fileForm.fileName);
+      if (this.fileForm.fileName == "请选择一个文件") {
         return;
       }
       this.isAllowEditFileName = true;
     },
-    async updateFile(){
-        console.log(this.fileForm)
-        // 发起修改文件接口
-        const { data : response } = await this.$http.post("/fileContent/updateFile",this.fileForm);
-        if(response.code != 200){
+    async updateFile() {
+      try {
+        const { data: response } = await this.$http.post(
+          "/fileContent/updateFile",
+          this.fileForm
+        );
+        if (response.code != 200) {
           this.$message.error(response.message);
+          this.fileForm.fileName = this.oldFileName;
+        }else{
+          this.isAllowEditFileName = false;
+          window.sessionStorage.setItem("currentFileName", this.fileForm.fileName);
         }
-        this.isAllowEditFileName = false;
-        window.sessionStorage.setItem("currentFileName",this.fileForm.fileName);
-        // 待优化，需要去查询一下当前节点的名称，如果修改失败，让文件名和服务器保持一致
-    },
+      } catch (e) {
+        // this.$message.error("服务器异常，请稍后重试");
+        this.fileForm.fileName = this.oldFileName;
+        this.this.isAllowEditFileName = false;
+      }
+         },
     rightClick($event, file, node, component) {
       // 鼠标右击触发事件
-      if(file.isNode == 1){
-        return
+      if (file.isNode == 1) {
+        return;
       }
       this.rightMenuNodeId = file.id;
-      this.menuVisible = false; 
-      this.menuVisible = true; 
+      this.menuVisible = false;
+      this.menuVisible = true;
       var menu = document.querySelector("#menu");
       document.addEventListener("click", this.foo); // 给整个document添加监听鼠标事件，点击任何位置执行foo方法
       menu.style.display = "block";
@@ -226,43 +195,47 @@ export default {
       document.removeEventListener("click", this.foo); // 要及时关掉监听
     },
     handleClose() {
-      this.dialogVisible = false;
+      this.fileDialogVisible = false;
+      // this.fileContentForm.fileName = "";
     },
     // 点击节点
     handleNodeClick(data) {
-       window.sessionStorage.setItem("currentFileid", data.id);
-       window.sessionStorage.setItem("currentFileName", data.fileName);
+      window.sessionStorage.setItem("currentFileid", data.id);
+      window.sessionStorage.setItem("currentFileName", data.fileName);
       this.isAllowEditFileName = false;
-      this.fileForm.id = data.id
+      this.fileForm.id = data.id;
       this.menuVisible = false; // 先把模态框关死，目的是 第二次或者第n次右键鼠标的时候 它默认的是true
       this.fileForm.fileName = data.fileName;
+      this.oldFileName = data.fileName;
       if (data.isNode === 1) {
         this.$router.push("/folder/online/file/" + data.id);
       } else {
         this.$router.push("/folder/online/noSelect");
       }
     },
-    addDir(){
-      console.log("添加文件夹")
-      console.log(this.rightMenuNodeId);
+    openAddDialog(isNode){
+        // 文件夹
+        this.fileContentForm.isNode = isNode;
+        this.fileDialogVisible = true;
     },
-    addFile(){
-      console.log("添加文件")
-      console.log(this.rightMenuNodeId);
-
+    // 添加文件夹或者文件
+    async add() {
+      this.fileContentForm.parentId = this.rightMenuNodeId;
+      console.log(this.fileContentForm);
+      const { data: response} = await this.$http.post("/fileContent/add",this.fileContentForm);
+      this.handleClose();
+      if(response.code == 200){
+        if(response.data.isNode == 1){
+          this.$router.push('/folder/online/file/' + response.data.id);
+        }else{
+          this.$router.push('/folder/online/noSelect');
+        }
+        this.treeData = response.tree;
+        this.fileForm.fileName = response.data.fileName;
+        this.expandedNode.push(response.data.parentId);
+        this.checkedNode.push(response.data.id);
+      }
     },
-    // 右键节点
-    // rightClickHandle(event, file, node, component) {
-    //   // file.isShowAdd = 1;
-    //   // 判断节点是文件还是文件夹
-    //   if (file.isNode == 0) {
-    //     // this.dialogVisible = true;
-    //           this.$refs.popverRef.doShow();
-
-    //   }
-
-    //   console.log(file);
-    // },
     // 过滤节点
     filterNode(value, data) {},
     // 展开/收缩
@@ -280,7 +253,7 @@ export default {
   },
   mounted() {
     this.getFileContent();
-    this.fileForm.fileName = window.sessionStorage.getItem("currentFileName")
+    this.fileForm.fileName = window.sessionStorage.getItem("currentFileName");
   },
 };
 </script>
@@ -322,8 +295,8 @@ export default {
   border-radius: 3px;
   border: 1px solid #999999;
   background-color: white;
-  padding-left:1px ;
-  cursor:pointer
+  padding-left: 1px;
+  cursor: pointer;
 }
 
 li:hover {

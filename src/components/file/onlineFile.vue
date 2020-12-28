@@ -3,6 +3,7 @@
     <div style="margin-bottom:10px;text-align:right" >
       <el-button v-if="!isEdit" size="mini" @click="isEdit=!isEdit">编辑</el-button>
       <el-button v-if="isEdit" size="mini" @click="save()">保存</el-button>
+      <el-button v-if="isEdit" size="mini" @click="isEdit=!isEdit">取消</el-button>
        <!-- <el-button @click="lookContent" size="mini">查询</el-button> -->
     </div>
     <div v-if="isEdit">

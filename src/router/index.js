@@ -11,6 +11,7 @@ import ConfigUserInfo from './../components/config/user/userInfo.vue'
 import FileOnline from './../components/file/online.vue'
 import FileOnlineFile from './../components/file/onlineFile.vue'
 import NoSelect from './../components/file/noSelect.vue'
+import NetWorkDisk from './../components/file/networkDisk.vue'
 
 
 Vue.use(VueRouter)
@@ -75,7 +76,12 @@ const routes = [
             path: 'noSelect', component: NoSelect
           }
         ]
-      },
+      },{
+        
+        path: '/folder/cloud', component: NetWorkDisk,meta: {
+          keepAlive: true
+        }
+      }
 
     ]
   }
