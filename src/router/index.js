@@ -88,6 +88,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+  base:'/management-front/',
   routes
 })
 
