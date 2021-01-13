@@ -324,7 +324,7 @@ export default {
 }
 
 .login_title {
-  padding-top: 100px;
+  padding-top: 30px;
   text-align: center;
   font-size: 400%;
   color: wheat;
