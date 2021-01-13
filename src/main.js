@@ -14,8 +14,8 @@ import Global from './CommonFunction/global.js'
 // // import echarts from './plugins/echarts'
 // import draggable from 'vuedraggable' //拖拽插件
 // import JsonViewer from 'vue-json-viewer'  //JSON插件
-axios.defaults.baseURL = 'http://www.management.haomingjian.top/api'
-// axios.defaults.baseURL = 'http://localhost'
+// axios.defaults.baseURL = 'http://www.management.haomingjian.top/api'
+axios.defaults.baseURL = 'http://localhost'
 
 
 axios.interceptors.request.use(request => {
